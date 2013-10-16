@@ -1,4 +1,4 @@
-package ueb01.aufgabe1b;
+package ueb01;
 
 /**
  * Created with IntelliJ IDEA.

@@ -1,6 +1,6 @@
-package ueb01.aufgabe1b;
+package ueb01;
 
-import java.util.concurrent.locks.Condition;
+import ueb01.Buffer;
 
 /**
  * http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/locks/Condition.html
