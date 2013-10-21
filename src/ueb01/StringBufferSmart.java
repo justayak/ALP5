@@ -17,18 +17,10 @@ public class StringBufferSmart implements Buffer<String> {
     private volatile int count = 0;
     private Object lock = new Object();
 
-    private void sleep(){
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            System.out.println("happens... :(");
-        }
-    }
-
     @Override
     public void send(String x) {
         while (this.count == SIZE){
-            //this.sleep();
+            // Aktives Warten ist ja jetzt nicht so geil..
         }
         synchronized (this.lock){
             if(this.count == SIZE){
@@ -44,7 +36,7 @@ public class StringBufferSmart implements Buffer<String> {
     @Override
     public String recv() {
         while(this.count==0){
-            //this.sleep();
+            // Aktives Warten ist ja jetzt nicht so geil..
         }
         synchronized (this.lock){
             if (this.count == 0){

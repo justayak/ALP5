@@ -41,7 +41,7 @@ public class Aufgabe2 {
 
         @Override
         public void run() {
-            for(int i=0;i<30;i++){
+            for(int i=0;i<1001;i++){
                 this.buffer.send("hallo " + i);
             }
         }
