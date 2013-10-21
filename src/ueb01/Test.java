@@ -29,6 +29,7 @@ public class Test {
         t3.start();
         t4.start();
 
+        // join waits until t1 and t2 end
         t1.join();
         t2.join();
         c1.stopMe = true;

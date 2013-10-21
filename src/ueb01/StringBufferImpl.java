@@ -27,22 +27,11 @@ public class StringBufferImpl implements Buffer<String> {
     private int out = 0;
     private int count = 0;
 
-    private static final boolean LOG = false;
-
-    private void log(String message){
-        if(LOG){
-            System.out.println(message);
-        }
-    }
-
     @Override
     public void send(String x) {
-        this.log("send - before {" + x + "}");
         this.lock.lock();
-        this.log("send - inside");
         try{
             while (this.count == SIZE){
-                this.log("send - await notFull: " + this.count );
                 this.notFull.await();
             }
             this.elements[in] = x;
@@ -53,19 +42,15 @@ public class StringBufferImpl implements Buffer<String> {
             System.out.println("nope :( - " + e.getMessage());
         } finally {
             this.lock.unlock();
-            this.log("send - leave: " + this.count);
         }
 
     }
 
     @Override
     public String recv() {
-        this.log("recv - before" );
         this.lock.lock();
-        this.log("recv - inside" );
         try{
             while(this.count==0){
-                this.log("recv- await notEmpty: " + this.count );
                 this.notEmpty.await();
             }
             String result = this.elements[out];
@@ -78,7 +63,6 @@ public class StringBufferImpl implements Buffer<String> {
             return null;
         } finally {
             this.lock.unlock();
-            this.log("recv - leave" );
         }
     }
 
