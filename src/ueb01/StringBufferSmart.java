@@ -15,35 +15,47 @@ public class StringBufferSmart implements Buffer<String> {
     private int in = 0;
     private int out = 0;
     private volatile int count = 0;
-    private Object lock;
+    private Object lock = new Object();
 
     private void sleep(){
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            System.out.println("happens... :(");
         }
     }
 
     @Override
     public void send(String x) {
         while (this.count == SIZE){
-            this.sleep();
+            //this.sleep();
         }
-        this.count++;
-        this.elements[this.in] = x;
-        this.in = (this.in+1)==SIZE ? 0 : this.in + 1;
+        synchronized (this.lock){
+            if(this.count == SIZE){
+                this.send(x);
+            }else{
+                this.count++;
+                this.elements[this.in] = x;
+                this.in = (this.in+1)==SIZE ? 0 : this.in + 1;
+            }
+        }
     }
 
     @Override
     public String recv() {
         while(this.count==0){
-            this.sleep();
+            //this.sleep();
         }
-        this.count--;
-        String result = this.elements[out];
-        this.out = this.out + 1 == SIZE ? 0:this.out+1;
-        return result;
+        synchronized (this.lock){
+            if (this.count == 0){
+                return recv();
+            }else{
+                this.count--;
+                String result = this.elements[out];
+                this.out = this.out + 1 == SIZE ? 0:this.out+1;
+                return result;
+            }
+        }
     }
 
     @Override
