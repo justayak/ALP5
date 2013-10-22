@@ -1,0 +1,39 @@
+Aufgabe 1
+
+a)
+
+Auszug aus diesen* Internetseiten über die BlockingQueue aus Java:
+
+void put(E e)
+    Inserts the specified element into this queue, waiting if necessary
+    for space to become available.
+
+E take()
+    Retrieves and removes the head of this queue, waiting if necessary until
+    an element becomes available.
+
+int size()
+    Returns the number of elements in this collection. If this collection
+    contains more than Integer. MAX_VALUE elements, returns Integer.MAX_VALUE.
+
+*Quelle:    http://docs.oracle.com/javase/6/docs/api/java/util/Collection.html#size() und
+            http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/BlockingQueue.html
+            eingesehen am 21.10.2013.
+
+Der Buffer, der in der Aufgabenstellung vorgegeben ist, ist dieser oben
+angegebenen Imnplementierung sehr ähnlich.
+
+Der Aufruf der Funktion put() der "BlockingQueue" hat den gleichen Effekt, wie
+der Aufruf send() aus dem "Buffer", denn beide Konstrukte warten, sollte kein
+Platz für eine neue Nachricht sein, auf genügend Platz für die neue Nachricht
+und hängen diese anschließen  an die letzte Stelle der Schlange an.
+
+Der Aufruf der Funktion "take()" und der Aufruf der Funktion recv() sind ebenfalls
+äquivalent. Beide nehmen das erste Element aus der Schlange bzw. die erste Nachricht
+aus dem Puffer und warten wenn falls die Schlange / der Buffer leer ist.
+
+Die Funktionen length() und size() unterscheiden sich auch nicht von einander. Im
+Wesentlichen geben beide Funktionen die Anzahl der Elemente zurück, die in der
+Schlange oder dem Puffer sind.
+
+
