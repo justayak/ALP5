@@ -1,4 +1,5 @@
-The libary com.jcraft.jsch comes with its own licence and is not toched by this one!
+The libary ch.ethz.ssh2 comes with its own licence and is not toched by this one!
+You can see its licence under src ch/ethz/ssh2/LICENSE.txt!
 ----------------------------------------------------------------
 Copyright (c) 2013 Timo Haffner, Julian Tanke
 

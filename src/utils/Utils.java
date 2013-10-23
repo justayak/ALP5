@@ -3,7 +3,11 @@ package utils;
 import org.omg.SendingContext.RunTime;
 import sun.misc.IOUtils;      // stuff
 
+import javax.sound.midi.SysexMessage;
+import java.awt.datatransfer.StringSelection;
 import java.io.*;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,128 +18,76 @@ import java.io.*;
  */
 public class Utils {
 
-    public static void main(String[] args) throws IOException {
+    public static void send(Process p,String command){
+        OutputStream os = p.getOutputStream();
+        try {
+            os.write(command.getBytes());
+        } catch (IOException e) {
+            System.out.println("something went wrong... [Utils.send(..) -> " + e.getMessage());
+        }finally {
+            try {
+                os.close();
+            } catch (IOException e) {
+                System.out.println("something went wrong while closing... [Utils.send(..) -> " + e.getMessage());
+            }
+        }
+    }
 
-        ProcessBuilder b = new ProcessBuilder("cmd");
+    public static String read(Process p){
+        StringBuilder sb = new StringBuilder();
+        InputStream is = p.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String s = null;
+        try {
+            while ((s=reader.readLine()) != null){
+                if (s.equals("") || s.equals(" ")) break;
+                sb.append(s);
+            }
+        } catch (IOException e) {
+            System.out.println("something went wrong... [Utils.read(..) -> " + e.getMessage());
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+
+        //ProcessBuilder b = new ProcessBuilder("D:/cmd/JulsTest.exe", "hello", "demo2");
+
         //Process p = b.start();
 
-
-        if (true) return;
-
-        BufferedReader inp = null;
-        BufferedWriter out = null;
-        try {
-
-            Process p = fork("cmd");
-
-            inp = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
-
-            InputStream in = new BufferedInputStream( p.getInputStream());
-;
-            out.write("ping localhost\n");
-            out.flush();
-
-            System.out.println("send to console");
-
-            /*int cnt;
-            byte[] buffer = new byte[1024];
-            while ( (cnt = in.read(buffer)) != -1) {
-                System.out.println(cnt);
-            } */
-
-            System.out.println(inp.readLine());
+        //System.out.println(read(p));
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (inp != null) inp.close();
-            if (out != null) out.close();
-        }
-
-
+        Process p = fork("D:/cmd/JulsTest.exe hello demo2");
+        System.out.println(read(p));
     }
 
     /**
-     * way cleaner declaration
      *
-     * @param command
-     * @param host
-     * @param user
-     * @param password
+     * @param commandId
      * @return
      */
-    public static Process fork(String command, String host, String user, String password) {
-
-
-        return null;
-    }
-
-    public static Process fork(String command) {
-        ProcessBuilder b = new ProcessBuilder(command);
+    public static Process fork(String commandId) {
+        String host = null;
+        String command = commandId;
+        if (commandId.contains(":")){
+            String[] temp = commandId.split(":");
+            if (temp[0].length() > 2){
+                // if the host is shorter its probably just a windows drive ('d:// ...')
+                host = temp[0];
+                if (temp.length == 3){
+                    command = temp[1] + ":" + temp[2]; // to "repair" windows drives...
+                }else {
+                    command = temp[1];
+                }
+            }
+        }
+        ProcessBuilder b = new ProcessBuilder(command.split(" "));
         try {
             return b.start();
         } catch (IOException e) {
-            System.out.println("too bad... fork crashed {" + e.getMessage() + "}");
+            System.out.println("shit happens: @Utils.fork .. " + e.getMessage());
         }
         return null;
     }
-
-    public static Process forkOld(String commandid) {
-        if (true) {
-            throw new FuckThisShitException("nope, not this time");
-        }
-        String command = null;
-        String host = null;
-        if (commandid.contains(":")) {
-            String[] temp = commandid.split(":");
-            command = temp[1];
-            host = temp[0];
-        } else {
-            command = commandid;
-        }
-        return new Process() {
-            @Override
-            public OutputStream getOutputStream() {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public InputStream getInputStream() {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public InputStream getErrorStream() {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public int waitFor() throws InterruptedException {
-                return 0;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public int exitValue() {
-                return 0;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public void destroy() {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-        };
-    }
-
-    /**
-     * Do not take me too seriously
-     */
-    public static class FuckThisShitException extends RuntimeException {
-        public FuckThisShitException(String message) {
-            super(message);
-        }
-    }
-
-
 }
