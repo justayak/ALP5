@@ -15,39 +15,30 @@ public class StringBufferSmart implements Buffer<String> {
     private int in = 0;
     private int out = 0;
     private volatile int count = 0;
-    private Object lock = new Object();
 
+    /**
+     *
+     * @param x
+     */
     @Override
-    public void send(String x) {
-        while (this.count == SIZE){
-            // Aktives Warten ist ja jetzt nicht so geil..
-        }
-        synchronized (this.lock){
-            if(this.count == SIZE){
-                this.send(x);
-            }else{
-                this.count++;
-                this.elements[this.in] = x;
-                this.in = (this.in+1)==SIZE ? 0 : this.in + 1;
-            }
-        }
+    public void send(String x){
+        while(this.count == SIZE){ /* fuck busy waiting.. */ }
+        this.elements[this.in] = x;
+        this.in = (this.in+1)==SIZE ? 0 : this.in + 1;
+        this.count += 1;
     }
 
+    /**
+     *
+     * @return last Element
+     */
     @Override
-    public String recv() {
-        while(this.count==0){
-            // Aktives Warten ist ja jetzt nicht so geil..
-        }
-        synchronized (this.lock){
-            if (this.count == 0){
-                return recv();
-            }else{
-                this.count--;
-                String result = this.elements[out];
-                this.out = this.out + 1 == SIZE ? 0:this.out+1;
-                return result;
-            }
-        }
+    public String recv(){
+        while(this.count == 0){ /* fuck busy waiting.. */ }
+        String result = this.elements[this.out];
+        this.out = this.out + 1 == SIZE ? 0 : this.out + 1;
+        this.count -= 1;
+        return "";
     }
 
     @Override
