@@ -1,13 +1,9 @@
 package utils;
 
-import org.omg.SendingContext.RunTime;
-import sun.misc.IOUtils;      // stuff
-
-import javax.sound.midi.SysexMessage;
-import java.awt.datatransfer.StringSelection;
 import java.io.*;
-import java.util.Arrays;
-import java.util.Map;
+import ch.ethz.ssh2.Connection;
+import ch.ethz.ssh2.Session;
+import ch.ethz.ssh2.StreamGobbler;
 
 /**
  * Created with IntelliJ IDEA.
@@ -60,6 +56,9 @@ public class Utils {
 
         Process p = fork("D:/cmd/JulsTest.exe hello demo2");
         System.out.println(read(p));
+
+
+        fork("xian.imp.fu-berlin.de:echo hallo welt");
     }
 
     /**
@@ -68,6 +67,10 @@ public class Utils {
      * @return
      */
     public static Process fork(String commandId) {
+
+        String username = "jutanke"; // HARDCODE ME!
+        String password = "Privjet123"; // HARDCODE ME!
+
         String host = null;
         String command = commandId;
         if (commandId.contains(":")){
@@ -82,6 +85,45 @@ public class Utils {
                 }
             }
         }
+
+        if(host !=null){
+            try {
+                Connection conn = new Connection(host);
+                conn.connect();
+
+                boolean isAuth = username == null ?
+                        conn.authenticateWithPublicKey("impl later", new char[]{'n','o','p','e'}, "") :
+                        conn.authenticateWithPassword(username, password);
+
+                if(!isAuth) return null;
+
+                Session sess = conn.openSession();
+                sess.execCommand(command);
+
+                InputStream stdout = new StreamGobbler(sess.getStdout());
+                BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+
+                StringBuilder sb = new StringBuilder();
+                while (true)
+                {
+                    String line = br.readLine();
+                    if (line == null)
+                        break;
+                    sb.append(line) ;
+                }
+
+                System.out.println(sb.toString() );
+
+                sess.close();
+                conn.close();
+
+            } catch (IOException e) {
+                System.out.println("shit happens with the ssh connection: @Utils.fork .. " + e.getMessage());
+                return null;
+            }
+            return null;
+        }
+
         ProcessBuilder b = new ProcessBuilder(command.split(" "));
         try {
             return b.start();
