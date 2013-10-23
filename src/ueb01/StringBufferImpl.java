@@ -28,6 +28,9 @@ public class StringBufferImpl implements Buffer<String> {
     private int count = 0;
 
     @Override
+    /**
+     *
+     */
     public void send(String x) {
         this.lock.lock();
         try{
@@ -47,6 +50,9 @@ public class StringBufferImpl implements Buffer<String> {
     }
 
     @Override
+    /**
+     *
+     */
     public String recv() {
         this.lock.lock();
         try{
@@ -67,6 +73,10 @@ public class StringBufferImpl implements Buffer<String> {
     }
 
     @Override
+    /**
+     * No protection against other threads because this function just returns the "current" states length.
+     * Right after this function call the count may have changed already
+     */
     public int length() {
         return count;
     }
