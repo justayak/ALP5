@@ -15,6 +15,13 @@ import java.io.*;
 public class Utils {
 
     public static void main(String[] args) throws IOException {
+
+        ProcessBuilder b = new ProcessBuilder("cmd");
+        //Process p = b.start();
+
+
+        if (true) return;
+
         BufferedReader inp = null;
         BufferedWriter out = null;
         try {
