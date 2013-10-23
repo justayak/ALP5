@@ -68,7 +68,7 @@ public class Utils {
      */
     public static Process fork(String commandId) {
 
-        String username = "jutanke"; // HARDCODE ME!
+        String username = ""; // HARDCODE ME!
         String password = ""; // HARDCODE ME!
 
         String host = null;
