@@ -8,7 +8,6 @@ import java.io.IOException;
  * User: Julian
  * Date: 16.10.13
  * Time: 13:35
- * To change this template use File | Settings | File Templates.
  */
 public class Test {
 

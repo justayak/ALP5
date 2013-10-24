@@ -12,7 +12,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * User: Julian
  * Date: 16.10.13
  * Time: 13:32
- * To change this template use File | Settings | File Templates.
  */
 public class StringBufferImpl implements Buffer<String> {
 

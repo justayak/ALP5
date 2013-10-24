@@ -3,17 +3,20 @@ package utils;
 import java.io.*;
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
-import ch.ethz.ssh2.StreamGobbler;
 
 /**
  * Created with IntelliJ IDEA.
  * User: Julian
  * Date: 16.10.13
  * Time: 13:37
- * To change this template use File | Settings | File Templates.
  */
 public class Utils {
 
+    /**
+     * Method to send a command to a Process
+     * @param p
+     * @param command
+     */
     public static void send(Process p,String command){
         OutputStream os = p.getOutputStream();
         try {
@@ -29,6 +32,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Method to receive the output of a Process
+     * @param p
+     * @return
+     */
     public static String read(Process p){
         StringBuilder sb = new StringBuilder();
         InputStream is = p.getInputStream();
@@ -55,7 +63,9 @@ public class Utils {
     }
 
     /**
-     * If you want to use
+     * If you want to use your ssh-key-login, you need to generate a pem-File from
+     * the ssh-private-key and put it into the main folder ( ALP5/ ); You also need
+     * to define the user with @ (like: jutanke@peking.imp.fu-berlin.de:...)
      * @param commandId
      * @return
      */
