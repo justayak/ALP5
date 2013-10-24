@@ -47,29 +47,22 @@ public class Utils {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        //ProcessBuilder b = new ProcessBuilder("D:/cmd/JulsTest.exe", "hello", "demo2");
+        Process p = fork("jutanke@peking.imp.fu-berlin.de:python");
 
-        //Process p = b.start();
-
-        //System.out.println(read(p));
-
-
-        Process p = fork("D:/cmd/JulsTest.exe hello demo2");
+        send(p, "a=6**2\nprint a");
         System.out.println(read(p));
 
-
-        fork("xian.imp.fu-berlin.de:echo hallo welt");
     }
 
     /**
-     *
+     * If you want to use
      * @param commandId
      * @return
      */
     public static Process fork(String commandId) {
 
-        String username = ""; // HARDCODE ME!
-        String password = ""; // HARDCODE ME!
+        String username = null; // HARDCODE ME!
+        String password = null; // HARDCODE ME!
 
         String host = null;
         String command = commandId;
@@ -78,6 +71,11 @@ public class Utils {
             if (temp[0].length() > 2){
                 // if the host is shorter its probably just a windows drive ('d:// ...')
                 host = temp[0];
+                if (host.contains("@")){
+                    String[] t = host.split("@");
+                    username = t[0];
+                    host = t[1];
+                }
                 if (temp.length == 3){
                     command = temp[1] + ":" + temp[2]; // to "repair" windows drives...
                 }else {
@@ -87,41 +85,64 @@ public class Utils {
         }
 
         if(host !=null){
+            Process remoteP = null;
             try {
-                Connection conn = new Connection(host);
+                final Connection conn = new Connection(host);
                 conn.connect();
 
-                boolean isAuth = username == null ?
-                        conn.authenticateWithPublicKey("impl later", new char[]{'n','o','p','e'}, "") :
-                        conn.authenticateWithPassword(username, password);
-
-                if(!isAuth) return null;
-
-                Session sess = conn.openSession();
-                sess.execCommand(command);
-
-                InputStream stdout = new StreamGobbler(sess.getStdout());
-                BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-
-                StringBuilder sb = new StringBuilder();
-                while (true)
-                {
-                    String line = br.readLine();
-                    if (line == null)
-                        break;
-                    sb.append(line) ;
+                boolean isAuth = false;
+                if (password != null){
+                    isAuth = conn.authenticateWithPassword(username, password);
                 }
 
-                System.out.println(sb.toString() );
+                if(!isAuth){
+                    File f = new File("private.pem");
+                    isAuth = conn.authenticateWithPublicKey(username, f, "");
+                    if(!isAuth)return null;
+                }
 
-                sess.close();
-                conn.close();
+                final  Session sess = conn.openSession();
+                sess.execCommand(command);
+
+                remoteP = new Process() {
+                    @Override
+                    public OutputStream getOutputStream() {
+                        return sess.getStdin();
+                    }
+
+                    @Override
+                    public InputStream getInputStream() {
+                        return sess.getStdout();
+                    }
+
+                    @Override
+                    public InputStream getErrorStream() {
+                        return sess.getStderr();
+                    }
+
+                    @Override
+                    public int waitFor() throws InterruptedException {
+                        sess.wait();
+                        return 0;
+                    }
+
+                    @Override
+                    public int exitValue() {
+                        return 0;
+                    }
+
+                    @Override
+                    public void destroy() {
+                        sess.close();
+                        conn.close();
+                    }
+                };
 
             } catch (IOException e) {
                 System.out.println("shit happens with the ssh connection: @Utils.fork .. " + e.getMessage());
                 return null;
             }
-            return null;
+            return remoteP;
         }
 
         ProcessBuilder b = new ProcessBuilder(command.split(" "));
