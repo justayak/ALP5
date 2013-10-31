@@ -57,11 +57,10 @@ public class Utils {
                 br.close();
             } catch (IOException e) {
                 e.printStackTrace();
+                return -2;
             }
         }
-
-
-        return 0;
+        return -3;
     }
 
     /**
