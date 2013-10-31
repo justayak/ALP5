@@ -32,6 +32,38 @@ public class Utils {
         }
     }
 
+    public static int countCharactersInFile(String fileName){
+
+        BufferedReader br = null;
+        try {
+            StringBuilder sb = new StringBuilder();
+            br = new BufferedReader(new FileReader(fileName));
+            String line = br.readLine();
+            while(line!=null){
+                sb.append(line);
+                line = br.readLine();
+            }
+
+            return sb.length();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("shit happens... @Utils.countCharactersInFile");
+            return -1;
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("shit happens while reading... @Utils.countCharactersInFile");
+        } finally{
+            if (br != null) try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        return 0;
+    }
+
     /**
      * Method to receive the output of a Process
      * @param p
