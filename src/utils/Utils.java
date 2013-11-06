@@ -55,10 +55,8 @@ public class Utils {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        Process p = fork("jutanke@peking.imp.fu-berlin.de:python");
-
-        send(p, "a=6**2\nprint a");
-        System.out.println(read(p));
+        System.out.println("yyy");
+        System.out.println('a' > 'b');
 
     }
 
