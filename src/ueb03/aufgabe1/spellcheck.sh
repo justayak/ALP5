@@ -1,4 +1,5 @@
 #!/bin/sh
+#Aufgabe 1d
 SIZE=$((`wc -m < text.txt` / $2))
 result=""
 echo $SIZE
