@@ -14,7 +14,11 @@ public class MyProcess extends GenericProcess<String> {
         super(name, boxsize);
     }
 
-
+     public void run(){
+         for (int i = 0; i < 5; i++){
+             System.out.println(this.recv());
+         }
+     }
 
     /**
      * START

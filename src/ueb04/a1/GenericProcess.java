@@ -3,32 +3,37 @@ package ueb04.a1;
 import java.lang.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created with IntelliJ IDEA.
  * User: Julian
  * Date: 13.11.13
  * Time: 13:00
- * To change this template use File | Settings | File Templates.
  */
 public abstract class GenericProcess<M> extends Thread implements Process<M> {
 
     protected final String name;
-    protected final int boxsize;
-
+    private final int SIZE;
+    private final BlockingQueue<M> messages;
     private List<Process<M>> peers = null;
-
-    public void run(){
-        System.out.println("thread!");
-    }
+    private final Lock lock = new ReentrantLock();
+    private final Condition notFull = lock.newCondition();
+    private final Condition notEmpty = lock.newCondition();
+    private int count = 0;
 
     /**
      * @param name
      * @param boxsize
      */
     GenericProcess(String name, int boxsize){
+        this.SIZE = boxsize;
         this.name = name;
-        this.boxsize = boxsize;
+        this.messages = new ArrayBlockingQueue<M>(boxsize);
     }
 
     @Override
@@ -40,14 +45,39 @@ public abstract class GenericProcess<M> extends Thread implements Process<M> {
     @Override
     public void send(M message) {
         if (this.peers != null){
-
+            this.lock.lock();
+            try{
+                while (this.count == this.SIZE){
+                    this.notFull.await();
+                }
+                this.messages.put(message);
+                this.count++;
+                this.notEmpty.signal();
+            }catch (InterruptedException e){
+                e.printStackTrace();
+                System.out.println("GenericProcess::send -> Crash shit fuck damn etc.");
+            }finally {
+                this.lock.unlock();
+            }
         }
     }
 
-
     protected M recv(){
-
-        return null;
+        this.lock.lock();
+        try{
+            while (this.count == 0){
+                this.notEmpty.await();
+            }
+            M result = this.messages.poll();
+            notFull.signal();
+            return result;
+        }catch(InterruptedException e){
+            e.printStackTrace();
+            System.out.println("GenericProcess::recv -> fucked up again shit ");
+            return null;
+        }finally{
+            this.lock.unlock();
+        }
     }
 
     // ===================================
