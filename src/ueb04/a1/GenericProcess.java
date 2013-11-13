@@ -19,7 +19,7 @@ public abstract class GenericProcess<M> extends Thread implements Process<M> {
 
     protected final String name;
     private final int SIZE;
-    private final BlockingQueue<M> messages;
+    private BlockingQueue<M> messages;
     private List<Process<M>> peers = null;
     private final Lock lock = new ReentrantLock();
     private final Condition notFull = lock.newCondition();
@@ -36,9 +36,18 @@ public abstract class GenericProcess<M> extends Thread implements Process<M> {
         this.messages = new ArrayBlockingQueue<M>(boxsize);
     }
 
+    protected void overrideQueue(BlockingQueue<M> b){
+        this.messages = b;
+    }
+
     @Override
     public void start(Process<M>[] peers) {
         this.peers = Arrays.asList(peers);
+        for(Process<M> p : peers){
+            if (p instanceof GenericProcess){
+                ((GenericProcess) p).overrideQueue(this.messages);
+            }
+        }
         this.start();
     }
 
