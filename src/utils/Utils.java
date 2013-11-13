@@ -32,6 +32,20 @@ public class Utils {
         }
     }
 
+    /**
+     * easy exceptionless sleep
+     * @param millis
+     */
+    public static void sleep(long millis){
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            System.out.println("ALP5: Utils::sleep crashed..");
+        }
+
+    }
+
     public static int countCharactersInFile(String fileName){
 
         BufferedReader br = null;
