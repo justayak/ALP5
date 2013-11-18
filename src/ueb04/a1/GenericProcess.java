@@ -18,74 +18,41 @@ import java.util.concurrent.locks.ReentrantLock;
 public abstract class GenericProcess<M> extends Thread implements Process<M> {
 
     protected final String name;
-    private final int SIZE;
-    private BlockingQueue<M> messages;
+    private BlockingQueue<M> mailbox;
     private List<Process<M>> peers = null;
-    private final Lock lock = new ReentrantLock();
-    private final Condition notFull = lock.newCondition();
-    private final Condition notEmpty = lock.newCondition();
-    private int count = 0;
 
     /**
      * @param name
      * @param boxsize
      */
     GenericProcess(String name, int boxsize){
-        this.SIZE = boxsize;
         this.name = name;
-        this.messages = new ArrayBlockingQueue<M>(boxsize);
-    }
-
-    protected void overrideQueue(BlockingQueue<M> b){
-        this.messages = b;
+        this.mailbox = new ArrayBlockingQueue<M>(boxsize);
     }
 
     @Override
     public void start(Process<M>[] peers) {
         this.peers = Arrays.asList(peers);
-        for(Process<M> p : peers){
-            if (p instanceof GenericProcess){
-                ((GenericProcess) p).overrideQueue(this.messages);
-            }
-        }
         this.start();
     }
 
     @Override
     public void send(M message) {
-        if (this.peers != null){
-            this.lock.lock();
-            try{
-                while (this.count == this.SIZE){
-                    this.notFull.await();
-                }
-                this.messages.put(message);
-                this.count++;
-                this.notEmpty.signal();
-            }catch (InterruptedException e){
-                e.printStackTrace();
-                System.out.println("GenericProcess::send -> Crash shit fuck damn etc.");
-            }finally {
-                this.lock.unlock();
-            }
+        try {
+            this.mailbox.put(message);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            System.out.println("Generic-Process -> send *= fuck shit happend!");
         }
     }
 
     protected M recv(){
-        this.lock.lock();
-        try{
-            while (this.count == 0){
-                this.notEmpty.await();
-            }
-            M result = this.messages.poll();
-            notFull.signal();
-            return result;
-        }catch(InterruptedException e){
+        try {
+            return this.mailbox.take();
+        } catch (InterruptedException e) {
             e.printStackTrace();
-            System.out.println("GenericProcess::recv -> fucked up again shit ");
+            System.out.println("Generic-Process -> recv *= fuck happend!");
             return null;
-        }finally{
-            this.lock.unlock();
         }
     }
 

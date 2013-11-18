@@ -30,6 +30,8 @@ public class MyProcess extends GenericProcess<String> {
         MyProcess[] l = new MyProcess[]{new MyProcess("test1", 10),new MyProcess("test2", 10)};
         p.start(l);
 
+        p.send("hallo welt");
+
         System.out.println("hi");
 
     }
