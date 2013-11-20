@@ -286,9 +286,25 @@ public class Comm {
     // S T A R T
     //=========================================
 
+    /**
+     * @param args
+     *  [0] = Name
+     *  [1] = 5001,5002
+     */
     public static void main(String[]args){
-        System.out.println("start");
-        init("julian", new int[0]);
+        if (args.length == 0){
+            System.out.println("start");
+            init("julian", new int[0]);
+        }else{
+            List<Integer> e = new ArrayList<Integer>();
+            for(String s : args[1].split(",")){
+                e.add(Integer.parseInt(s));
+            }
+            int[] s = new int[e.size()];
+            for(int i = 0; i < s.length; i++){
+                s[i] = e.get(i);
+            }
+            init(args[1],s);
+        }
     }
-
 }
