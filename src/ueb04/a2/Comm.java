@@ -73,19 +73,23 @@ public class Comm {
 
     private enum MessageType{
         Message  ,  // 0
-        Update      // 1
+        Update,     // 1
+        Connect     // 2
     }
 
     /**
      * Nachrichten zum versenden über das Netzwerk:
      * Aufbau:
-     *      TYPE | PORT | DATA
+     *      TYPE | PORT | NAME | DATA
      *
      *      0 = Message: DATA == Message
-     *   Bsp: "0|5001|hallo welt"
+     *   Bsp: "0|5001|timo|hallo welt"
      *
      *      1 = Update: DATA == Peers
-     *   Bsp: "1|5002|5001,5000"
+     *   Bsp: "1|5002|julian|5001,5000"
+     *
+     *      2 = Connect
+     *      Bsp:2|5003|alex
      *
      *  ACHTUNG: es gibt keine Fehlerbehandlung
      *
@@ -96,6 +100,7 @@ public class Comm {
     private static class Message {
         public final int Port;
         public String Message;
+        public String Name;
         public MessageType Type;
         public List<Integer> Peers = new ArrayList<Integer>();
         public Message(byte [] data){
@@ -105,26 +110,55 @@ public class Comm {
             } catch (UnsupportedEncodingException e) {
                 System.out.println("nop wtf");
             }
-            int type = Integer.parseInt(t[0]);
+            Name = t[2];
             Port = Integer.parseInt(t[1]);
-            if (type == 0){
-                Type = MessageType.Message;
-                Message = t[2];
-            }else {
-                Type = MessageType.Update;
-                for(String p : t[2].split(",")){
-                    Peers.add(Integer.parseInt(p));
-                }
+            switch (Integer.parseInt(t[0])){
+
+                case 0:
+                    Type = MessageType.Message;
+                    Message = t[3];
+                    break;
+                case 1:
+                    Type = MessageType.Update;
+                    for(String p : t[3].split(",")){
+                        Peers.add(Integer.parseInt(p));
+                    }
+                    break;
+                case 2:
+                    Type = MessageType.Connect;
+                    break;
+
             }
         }
         public Message(RoutingCell c,String message){
             this.Port = c.Port;
             this.Message = message;
+            this.Type = MessageType.Message;
+        }
+
+        public Message(RoutingCell c,List<Integer> peers){
+            this.Port = c.Port;
+            this.Message = "";
+            for(int peer : peers){
+                if (this.Message.length() != 0){
+                    this.Message += ",";
+                }
+                this.Message += peer;
+            }
+            this.Type = MessageType.Update;
         }
 
         @Override
         public String toString(){
-            return Port + "|" + Message;
+            switch (this.Type){
+                case Connect:
+                    return "2|" + this.Port + "|" + this.Name;
+                case Update:
+                    return "1|" + this.Port + "|" + this.Name + "|" + this.Message;
+                case Message:
+                    return "0|" + this.Port + "|" + this.Name + "|" + this.Message;
+            }
+            return null;
         }
     }
 
@@ -280,6 +314,15 @@ public class Comm {
 
             }
         }
+    }
+
+    /**
+     * Ein neuer Prozess hat diesen Prozess als einen Verbindungspunkt ausgewählt
+     * Sende dem neuen Prozess unsere Routing-Tabelle zu
+     * @param m
+     */
+    private static void connect(Message m){
+
     }
 
     //=========================================
