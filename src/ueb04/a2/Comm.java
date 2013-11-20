@@ -269,7 +269,17 @@ public class Comm {
      * @param m
      */
     private static void update(Message m){
+        if (m.Peers.contains(id)){
+            RoutingCell cell = new RoutingCell(m.Port);
+            cell.Distance = 1;
+            table.add(m.Port - FirstPort, cell);
+        }else{
+            int closestDist = Integer.MAX_VALUE;
 
+            for(int p : m.Peers){
+
+            }
+        }
     }
 
     //=========================================
