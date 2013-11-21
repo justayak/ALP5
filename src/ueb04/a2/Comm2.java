@@ -6,6 +6,8 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * User: Julian
@@ -23,6 +25,7 @@ public class Comm2 {
     private static int _pendingPeersCounter = 0;
     private static int[] _peers;
     private static int _updateId = -1;
+    private static BlockingQueue<String> mailbox;
 
     public static void main(String[] args) throws InterruptedException {
         _name = "erster";
@@ -46,7 +49,9 @@ public class Comm2 {
     }
 
     public static void init(String name, int[] peers) {
-
+        mailbox = new ArrayBlockingQueue<String>(10);
+        _name = name;
+        _peers = peers;
         // sind wir der erste Knoten?
         if (available(FirstPort)) {  // zugegeben: das ist ein schwaches Argument..
 
@@ -80,7 +85,6 @@ public class Comm2 {
                 // weiter gehts in   "connectAccepted"
             }
         }
-
     }
 
     public static void stop() {
@@ -88,12 +92,32 @@ public class Comm2 {
         if (_thread != null) _thread.interrupt();
     }
 
+    public static void SEND(String message, String destination){
+        int port = _routing.port(destination);
+        Message send = new Message(port,destination,message);
+        send(port, send);
+    }
+
+    public static String RECV(){
+        try {
+            return mailbox.take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /*================================================
     P R O T O C O L S
      ================================================*/
 
-    private static void forward(Message m) {
-
+    private static void forward(Message m) throws InterruptedException {
+        if(_name.equals(m.Name)){
+            mailbox.put(m.Message);
+        }else {
+            int port = _routing.port(m.Name);
+            send(port,m);
+        }
     }
 
     private static void update(Message m) {
@@ -155,6 +179,7 @@ public class Comm2 {
             for (int peer : _peers) {
                 send(peer, update);
             }
+            System.out.println(_routing.toString());
         }
     }
 
@@ -202,6 +227,8 @@ public class Comm2 {
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("damn:Listener->run");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -293,6 +320,7 @@ public class Comm2 {
         private int[] ports;
         private String[] names;
         private HashMap<String, Integer> nameToPosition = new HashMap<String, Integer>();
+        public int Port = -1;
 
         /**
          * Erzeugt Routingtabelle mit initialer Größe
@@ -321,7 +349,8 @@ public class Comm2 {
             if (peers.size() == 1) {
                 for (i = 0; i < o.length(); i++) {
                     this.distances[i] = o.distance(i) + 1;
-                    this.ports[i] = o.port(i);
+                    //this.ports[i] = o.port(i);
+                    this.ports[i] = o.Port;
                     this.names[i] = o.name(i);
                     this.nameToPosition.put(o.name(i), i);
                 }
@@ -334,7 +363,8 @@ public class Comm2 {
                         }
                     }
                     this.distances[i] = lowest.distance(i) + 1;
-                    this.ports[i] = lowest.port(i);
+                    //this.ports[i] = lowest.port(i);
+                    this.ports[i] = lowest.Port;
                     this.names[i] = lowest.name(i);
                     this.nameToPosition.put(lowest.name(i), i);
                 }
@@ -347,6 +377,7 @@ public class Comm2 {
         private RoutingTable(Message m) {
             String[] t = m.Message.split(";");
             this.distances = new int[t.length];
+            this.Port = m.Port;
             this.ports = new int[t.length];
             this.names = new String[t.length];
             for (int i = 0; i < t.length; i++) {
@@ -407,7 +438,6 @@ public class Comm2 {
             return this.distances[port - FirstPort];
         }
 
-        // jaaa.. ein wenig sinnlos
         public int PortByPort(int port) {
             return this.ports[port - FirstPort];
         }
