@@ -121,7 +121,7 @@ public class Comm2 {
                         closestDistance = _routing.distanceByPort(peer);
                     }
                 }
-                _routing.add(m.Name, m.Port, closestDistance + 1);
+                _routing.add(m.Name, _routing.PortByPort(closest), closestDistance + 1);
             }
 
             for (int peer : _peers) {
