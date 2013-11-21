@@ -22,14 +22,23 @@ public class Comm2 {
     private static List<Message> _pendingTablesFromPeers = new ArrayList<Message>();
     private static int _pendingPeersCounter = 0;
     private static int[] _peers;
+    private static int _updateId = -1;
 
     public static void main(String[] args) throws InterruptedException {
         _name = "erster";
         _peers = new int[0];
         if (args.length > 0) {
             _name = args[0];
-            _peers = new int[1];
-            _peers[0] = Integer.parseInt(args[1]);
+            if (args[1].contains(",")) {
+                String[] t = args[1].split(",");
+                _peers = new int[t.length];
+                for (int i = 0; i < t.length; i++) {
+                    _peers[i] = Integer.parseInt(t[i]);
+                }
+            } else {
+                _peers = new int[1];
+                _peers[0] = Integer.parseInt(args[1]);
+            }
         }
         init(_name, _peers);
 
@@ -90,15 +99,41 @@ public class Comm2 {
     private static void update(Message m) {
         if (_routing == null) throw new RuntimeException("Build-Vorgang noch nicht abgeschlossen!");
 
-        if(!_routing.hasPort(m.Port)){
+        if (!_routing.hasPort(m.Port)) {
             // führe nur dann ein Update durch, wenn wir den Port noch nicht in unsere
             // Liste eingetragen haben!
-            System.out.println("update! " + m.toString());
+            //System.out.println("update! " + m.toString());
 
+            if (isIn(_port, m.Peers)) {
+                _routing.add(m.Name, m.Port, 1);
+                int[] newPeers = new int[_peers.length + 1];
+                int i = 0;
+                for (; i < _peers.length; i++) {
+                    newPeers[i] = _peers[i];
+                }
+                newPeers[i] = m.Port;
+            } else {
+                int closest = m.Peers.get(0);
+                int closestDistance = _routing.distanceByPort(closest);
+                for (int peer : m.Peers) {
+                    if (closestDistance > _routing.distanceByPort(peer)) {
+                        closest = peer;
+                        closestDistance = _routing.distanceByPort(peer);
+                    }
+                }
+                _routing.add(m.Name, m.Port, closestDistance + 1);
+            }
+
+            for (int peer : _peers) {
+                send(peer, m);
+            }
+
+        } else {
+            System.out.println("discard update..");
         }
+        // leite die Nachricht weiter!
 
-
-
+        System.out.println(_routing.toString());
     }
 
     private static void connect(Message m) {
@@ -113,12 +148,12 @@ public class Comm2 {
         System.out.println("m: " + m.toString());
         _pendingTablesFromPeers.add(m);
         _pendingPeersCounter--;
-        if (_pendingPeersCounter == 0){
+        if (_pendingPeersCounter == 0) {
             // wenn wir hier landen, dann haben wir alle peers erhalten
-            _routing = new RoutingTable(_pendingTablesFromPeers, _name,_port);
-            Message update = new Message(_port,_name,_peers);
-            for(int peer : _peers){
-                send(peer,update);
+            _routing = new RoutingTable(_pendingTablesFromPeers, _name, _port);
+            Message update = new Message(_port, _name, _peers);
+            for (int peer : _peers) {
+                send(peer, update);
             }
         }
     }
@@ -240,6 +275,13 @@ public class Comm2 {
     S U P P O R T I N G  C L A S S E S
      ================================================*/
 
+    private static boolean isIn(int s, List<Integer> e) {
+        for (int i : e) {
+            if (i == s) return true;
+        }
+        return false;
+    }
+
     private static int FirstPort = 5000;
 
     /**
@@ -273,9 +315,9 @@ public class Comm2 {
             }
             RoutingTable o = peers.get(0);
             int i = 0;
-            this.distances = new int[o.length()+1];
-            this.ports = new int[o.length()+1];
-            this.names = new String[o.length()+1];
+            this.distances = new int[o.length() + 1];
+            this.ports = new int[o.length() + 1];
+            this.names = new String[o.length() + 1];
             if (peers.size() == 1) {
                 for (i = 0; i < o.length(); i++) {
                     this.distances[i] = o.distance(i) + 1;
@@ -297,7 +339,7 @@ public class Comm2 {
                     this.nameToPosition.put(lowest.name(i), i);
                 }
             }
-            this.distances[i]=0;
+            this.distances[i] = 0;
             this.ports[i] = port;
             this.names[i] = name;
         }
@@ -316,11 +358,21 @@ public class Comm2 {
             }
         }
 
+        public void add(String name, int port, int distance) {
+            int p = this.length();
+            this.nameToPosition.put(name, p);
+            this.grow();
+            this.names[p] = name;
+            this.ports[p] = port;
+            this.distances[p] = distance;
+
+        }
+
         public int length() {
             return this.distances.length;
         }
 
-        public boolean hasPort(int port){
+        public boolean hasPort(int port) {
             return this.length() > (port - FirstPort);
         }
 
@@ -351,17 +403,17 @@ public class Comm2 {
             return this.names[i];
         }
 
-        public int distanceByPort(int port){
-            return this.distances[port-FirstPort];
+        public int distanceByPort(int port) {
+            return this.distances[port - FirstPort];
         }
 
         // jaaa.. ein wenig sinnlos
-        public int PortByPort(int port){
-            return this.ports[port-FirstPort];
+        public int PortByPort(int port) {
+            return this.ports[port - FirstPort];
         }
 
-        public String nameByPort(int port){
-            return this.names[port-FirstPort];
+        public String nameByPort(int port) {
+            return this.names[port - FirstPort];
         }
 
         @Override
@@ -444,22 +496,22 @@ public class Comm2 {
             switch (Integer.parseInt(t[0])) {
 
                 case 0:
-                    Type = MessageType.Message;
-                    Message = t[3];
+                    this.Type = MessageType.Message;
+                    this.Message = t[3];
                     break;
                 case 1:
-                    Type = MessageType.Update;
+                    this.Type = MessageType.Update;
                     for (String p : t[3].split(",")) {
                         Peers.add(Integer.parseInt(p));
                     }
-                    Message = t[3];
+                    this.Message = t[3];
                     break;
                 case 2:
-                    Type = MessageType.Connect;
+                    this.Type = MessageType.Connect;
                     break;
                 case 3:
-                    Type = MessageType.ConnectAccept;
-                    Message = t[3];
+                    this.Type = MessageType.ConnectAccept;
+                    this.Message = t[3];
                     break;
             }
         }
