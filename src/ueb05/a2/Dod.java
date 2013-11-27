@@ -19,9 +19,14 @@ import static utils.Utils.*;
 public class Dod {
 
     private static final int PORT = 5000;
-    private static final int TIMEOUT = 60000; // 1 Minute
+    private static final int TIMEOUT = 60000; // Millis
 
     public static void main(String[] args) throws IOException {
+
+        Process a = fork("py");
+        send(a, "print(a+2)");
+        System.out.println(read(a) + " | ");
+
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(PORT);
@@ -51,23 +56,28 @@ public class Dod {
         new Thread() {
             public void run() {
                 try {
-                    boolean isRunning = true;
+                    boolean isFirst = true;
                     PrintWriter out = new PrintWriter(client.getOutputStream(), true);
                     out.println("was geht?? Timo und Julians Server hier! Mach mal was:");
-                    while (isRunning) {
+                    Process p = null;
+                    while (true) {
                         Scanner in = new Scanner(client.getInputStream());
                         String command = in.nextLine();
                         System.out.println("command: " + command);
-                        String[] l = command.split(" ");
-                        String main = l[0];
-                        command = Utils.join(Arrays.copyOfRange(l, 1, l.length), " ");
-                        Process p = fork(main);
+                        if (isFirst){
+                            String[] l = command.split(" ");
+                            String main = l[0];
+                            command = Utils.join(Arrays.copyOfRange(l, 1, l.length), " ");
+                            p = fork(main);
+                            isFirst = false;
+                        }
+                        if (command.equals("::quit")) break;
                         send(p, command);
                         String result = read(p);
                         System.out.println(result);
                         out.println(result);
-                        out.println("go on? (y or n)");
-                        isRunning = (in.nextLine().charAt(0) == 'y');
+                        //out.println("go on? (y or n)");
+                        //isRunning = (in.nextLine().charAt(0) == 'y');
                     }
 
                 } catch (IOException e) {
