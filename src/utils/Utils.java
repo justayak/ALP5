@@ -77,6 +77,17 @@ public class Utils {
         return -3;
     }
 
+    public static String join(String[] l, String connector){
+        StringBuilder sb = new StringBuilder();
+        for(String s : l){
+            if (sb.length() > 0){
+                sb.append(connector);
+            }
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
     /**
      * Method to receive the output of a Process
      * @param p
