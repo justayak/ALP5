@@ -21,7 +21,6 @@ public class Dod {
     private static final int TIMEOUT = 60000; // Millis
 
     public static void main(String[] args) throws IOException {
-
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(PORT);
@@ -71,7 +70,6 @@ public class Dod {
                         out.println("go on? (y or n)");
                         isRunning = (in.nextLine().charAt(0) == 'y');
                     }
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
