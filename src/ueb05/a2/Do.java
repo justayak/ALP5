@@ -3,6 +3,7 @@ package ueb05.a2;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Scanner;
 
 /**
  * User: Julian
@@ -16,42 +17,31 @@ public class Do {
             final int PORT = 5000;
             InetAddress local = InetAddress.getLocalHost();
             String program = args[0];
-
             File f = new File(args[1]);
-
-            //String text = new String(Files.readAllBytes(Paths.get(args[1])), StandardCharsets.UTF_8);
-
-
             BufferedReader br = new BufferedReader(new FileReader(f));
             String t = null;
             String text = "";
             while ((t = br.readLine()) != null) {
                 text += t;
             }
-
-            String param = program + " " + text;
-
+            // Once ist ein Serverflag, um den gegebenen Befehl nur ein
+            // einziges mal aufzurufen! Once muss der 2te Parameter sein
+            final String ONCE = "!!once!!";
+            String param = program + " " + ONCE + " " + text;
             final Socket s = new Socket(local, PORT);
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
 
-            new Thread() {
-                public void run() {
-                    while (true) {
-                        try {
-                            BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                            while (true) {
-                                System.out.println(br.readLine());
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }.run();
+            Scanner in = new Scanner(s.getInputStream());
 
-            writer.print("py print(5+5)");
-            writer.flush();
+            // Die "Empfangsnachricht"
+            System.out.println(in.nextLine());
 
+            // schicke das Command
+            writer.write(param);
+            writer.close();
+
+            // Der eigentliche Funktionswert
+            System.out.println(in.nextLine());
 
         } else {
             System.out.println("nop.. falsche Anzahl an Params (2 erwartet)");

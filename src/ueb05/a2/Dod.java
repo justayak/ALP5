@@ -46,11 +46,11 @@ public class Dod {
      * @throws IOException
      */
     private static void handleConnection(final Socket client) throws IOException {
-
         new Thread() {
             public void run() {
                 try {
                     boolean isRunning = true;
+                    boolean isOnce = false;
                     PrintWriter out = new PrintWriter(client.getOutputStream(), true);
                     out.println("was geht?? Timo und Julians Server hier! Mach mal was:");
                     Process p = null;
@@ -60,13 +60,19 @@ public class Dod {
                         System.out.println("command: " + command);
                         String[] l = command.split(" ");
                         String main = l[0];
-                        command = Utils.join(Arrays.copyOfRange(l, 1, l.length), " ");
+                        int start = 1;
+                        if (l[1].equals("!!once!!")){
+                            start = 2;
+                            isOnce = true;
+                        }
+                        command = Utils.join(Arrays.copyOfRange(l, start, l.length), " ");
                         p = fork(main);
                         if (command.equals("::quit")) break;
                         send(p, command);
                         String result = read(p);
                         System.out.println(result);
                         out.println(result);
+                        if (isOnce) break;
                         out.println("go on? (y or n)");
                         isRunning = (in.nextLine().charAt(0) == 'y');
                     }
