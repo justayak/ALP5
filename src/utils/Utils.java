@@ -27,7 +27,7 @@ public class Utils {
             System.out.println("something went wrong... [Utils.send(..) -> " + e.getMessage());
         } finally {
             try {
-                os.flush();
+                os.close();
             } catch (IOException e) {
                 System.out.println("something went wrong while closing... [Utils.send(..) -> " + e.getMessage());
             }
