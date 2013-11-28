@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.*;
+
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
 
@@ -14,29 +15,40 @@ public class Utils {
 
     /**
      * Method to send a command to a Process
+     *
      * @param p
      * @param command
      */
-    public static void send(Process p,String command){
+    public static void send(Process p, String command) {
         OutputStream os = p.getOutputStream();
         try {
             os.write(command.getBytes());
         } catch (IOException e) {
             System.out.println("something went wrong... [Utils.send(..) -> " + e.getMessage());
-        }finally {
+        } finally {
             try {
-                os.close();
+                os.flush();
             } catch (IOException e) {
                 System.out.println("something went wrong while closing... [Utils.send(..) -> " + e.getMessage());
             }
         }
     }
 
+    public static void close(Process p) {
+        try {
+            p.getOutputStream().close();
+            p.getInputStream().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * easy exceptionless sleep
+     *
      * @param millis
      */
-    public static void sleep(long millis){
+    public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
@@ -46,14 +58,14 @@ public class Utils {
 
     }
 
-    public static int countCharactersInFile(String fileName){
+    public static int countCharactersInFile(String fileName) {
 
         BufferedReader br = null;
         try {
             StringBuilder sb = new StringBuilder();
             br = new BufferedReader(new FileReader(fileName));
             String line = br.readLine();
-            while(line!=null){
+            while (line != null) {
                 sb.append(line);
                 line = br.readLine();
             }
@@ -66,7 +78,7 @@ public class Utils {
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("shit happens while reading... @Utils.countCharactersInFile");
-        } finally{
+        } finally {
             if (br != null) try {
                 br.close();
             } catch (IOException e) {
@@ -77,10 +89,10 @@ public class Utils {
         return -3;
     }
 
-    public static String join(String[] l, String connector){
+    public static String join(String[] l, String connector) {
         StringBuilder sb = new StringBuilder();
-        for(String s : l){
-            if (sb.length() > 0){
+        for (String s : l) {
+            if (sb.length() > 0) {
                 sb.append(connector);
             }
             sb.append(s);
@@ -90,16 +102,17 @@ public class Utils {
 
     /**
      * Method to receive the output of a Process
+     *
      * @param p
      * @return
      */
-    public static String read(Process p){
+    public static String read(Process p) {
         StringBuilder sb = new StringBuilder();
         InputStream is = p.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String s = null;
         try {
-            while ((s=reader.readLine()) != null){
+            while ((s = reader.readLine()) != null) {
                 if (s.equals("") || s.equals(" ")) break;
                 sb.append(s);
             }
@@ -120,6 +133,7 @@ public class Utils {
      * If you want to use your ssh-key-login, you need to generate a pem-File from
      * the ssh-private-key and put it into the main folder ( ALP5/ ); You also need
      * to define the user with @ (like: jutanke@peking.imp.fu-berlin.de:...)
+     *
      * @param commandId
      * @return
      */
@@ -130,42 +144,42 @@ public class Utils {
 
         String host = null;
         String command = commandId;
-        if (commandId.contains(":")){
+        if (commandId.contains(":")) {
             String[] temp = commandId.split(":");
-            if (temp[0].length() > 2){
+            if (temp[0].length() > 2) {
                 // if the host is shorter its probably just a windows drive ('d:// ...')
                 host = temp[0];
-                if (host.contains("@")){
+                if (host.contains("@")) {
                     String[] t = host.split("@");
                     username = t[0];
                     host = t[1];
                 }
-                if (temp.length == 3){
+                if (temp.length == 3) {
                     command = temp[1] + ":" + temp[2]; // to "repair" windows drives...
-                }else {
+                } else {
                     command = temp[1];
                 }
             }
         }
 
-        if(host !=null){
+        if (host != null) {
             Process remoteP = null;
             try {
                 final Connection conn = new Connection(host);
                 conn.connect();
 
                 boolean isAuth = false;
-                if (password != null){
+                if (password != null) {
                     isAuth = conn.authenticateWithPassword(username, password);
                 }
 
-                if(!isAuth){
+                if (!isAuth) {
                     File f = new File("private.pem");
                     isAuth = conn.authenticateWithPublicKey(username, f, "");
-                    if(!isAuth)return null;
+                    if (!isAuth) return null;
                 }
 
-                final  Session sess = conn.openSession();
+                final Session sess = conn.openSession();
                 sess.execCommand(command);
 
                 remoteP = new Process() {
