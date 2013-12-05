@@ -13,6 +13,19 @@ import ch.ethz.ssh2.Session;
  */
 public class Utils {
 
+    private static long currentTime;
+
+    public static void stopwatchStart(){
+        currentTime = java.lang.System.nanoTime();
+    }
+
+    public static void stopwatchEnd(){
+        long current = java.lang.System.nanoTime();
+        long dif = current - currentTime;
+        long millis = dif / 1000000;
+        System.out.println("Millis: {" + millis + "} Nanos: {" + dif + "}" );
+    }
+
     /**
      * Method to send a command to a Process
      *
