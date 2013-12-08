@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.*;
+import java.util.List;
 
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
@@ -17,6 +18,22 @@ public class Utils {
 
     public static void stopwatchStart(){
         currentTime = java.lang.System.nanoTime();
+    }
+
+    public static <T> T[] listToArray(List<T> list){
+        T[] result = (T[])new Object[list.size()];
+        for(int i = 0; i < list.size(); i++){
+            result[i] = list.get(i);
+        }
+        return result;
+    }
+
+    public static String[] listToArrayStr(List<String> list){
+        String[] result = new String[list.size()];
+        for(int i = 0; i < list.size(); i++){
+            result[i] = list.get(i);
+        }
+        return result;
     }
 
     public static void stopwatchEnd(){
