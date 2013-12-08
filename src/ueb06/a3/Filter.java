@@ -51,10 +51,8 @@ public class Filter {
         }
 
         long end = System.currentTimeMillis();
-
         double secs = (end - start) / 1000.0;
-
-        System.out.println("dif: " + (end - start) + " millis | secs: " + secs);
+        //System.out.println("dif: " + (end - start) + " millis | secs: " + secs);
 
     }
 
@@ -105,7 +103,8 @@ public class Filter {
             String[] words = line.split(" ");
             for(String word : words){
                 if (word.length() > 0)
-                    result.add(word.replace(",", "").replace(".", "").replace("!","").replace(";",""));
+                    result.add(word.replace(",", "").replace(".", "").replace("'", "").replace("\"", "")
+                            .replace("...", "").replace("!","").replace(";","").replace(":", "").toLowerCase());
             }
         }
         String[] r = Utils.<String>listToArrayStr(result);
