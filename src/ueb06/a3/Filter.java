@@ -32,6 +32,11 @@ public class Filter {
         if ((args.length > 2 && args[2].equals("-s")) || (args.length >= 5 && args[4].equals("-s"))) {
             isServer = true;
         }
+        String result = init(plus, language, hostPort, isServer);
+    }
+
+
+    public static String init(boolean plus, String language, int hostPort, boolean isServer) throws IOException {
         // Programm kann beginnen...
 
         long start = System.currentTimeMillis();
@@ -48,9 +53,7 @@ public class Filter {
             b.append(word);
             b.append("\n");
         }
-        if (hostPort == -1){
-            System.out.println(b.toString());
-        }else {
+        if (hostPort != -1){
             InetAddress address = InetAddress.getLocalHost(); // natürlich nimm hier ne richtige address..
             Utils.sendTCP(address,hostPort,b.toString());
         }
@@ -59,7 +62,7 @@ public class Filter {
         double secs = (end - start) / 1000.0;
         //System.out.println("dif: " + (end - start) + " millis | secs: " + secs);
 
-
+        return b.toString();
 
     }
 

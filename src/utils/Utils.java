@@ -2,11 +2,19 @@ package utils;
 
 import java.io.*;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
+import ueb01.StringBufferImpl;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,6 +28,29 @@ public class Utils {
 
     public static void stopwatchStart() {
         currentTime = java.lang.System.nanoTime();
+    }
+
+    static ExecutorService pool = null;
+
+    public static Future<String> getTCP(final int port) {
+        if (pool == null){
+            pool = Executors.newCachedThreadPool();
+        }
+        return pool.submit(new Callable<String>(){
+            @Override
+            public String call() throws Exception {
+                ServerSocket server = null;
+                try(ServerSocket socket = new ServerSocket(port)){
+                    Socket client = socket.accept();
+                    Scanner s = new Scanner(client.getInputStream());
+                    StringBuilder sb = new StringBuilder();
+                    while (s.hasNext()){
+                        sb.append(s.next());
+                    }
+                    return sb.toString();
+                }
+            }
+        });
     }
 
     public static void sendTCP(InetAddress address, int port, String message) {
@@ -36,6 +67,37 @@ public class Utils {
             }
         }
     }
+
+    public static void close(){
+        if(pool != null){
+            pool.shutdown();
+        }
+    }
+
+    public static String wordFromScanner(Scanner scanner){
+        StringBuilder result = new StringBuilder();
+        while (scanner.hasNextLine()){
+            String line = scanner.nextLine();
+            result.append(line);
+            result.append("\n");
+        }
+        return result.toString();
+    }
+
+    public static String[] wordsFromScanner(Scanner scanner){
+        List<String> result = new ArrayList<String>();
+        while (scanner.hasNextLine()){
+            String line = scanner.nextLine();
+            String[] words = line.split(" ");
+            for(String word : words){
+                if (word.length() > 0)
+                    result.add(word.replace(",", "").replace(".", "").replace("'", "").replace("\"", "")
+                            .replace("...", "").replace("!","").replace(";","").replace(":", "").toLowerCase());
+            }
+        }
+        return Utils.<String>listToArrayStr(result);
+    }
+
 
     public static <T> T[] listToArray(List<T> list) {
         T[] result = (T[]) new Object[list.size()];
