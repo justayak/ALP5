@@ -3,8 +3,10 @@ package ueb06.a3;
 import utils.Utils;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.*;
 
 /**
@@ -13,6 +15,8 @@ import java.util.*;
  * Time: 20:16
  */
 public class Filter {
+
+    static final int port = 5000;
 
     public static void main(String[] args) throws IOException {
         if (args.length < 2) throw new RuntimeException("Wrong nbr of params!");
@@ -39,20 +43,23 @@ public class Filter {
 
         String[] result = filter(text, plus, dict);
 
+        StringBuilder b = new StringBuilder();
+        for(String word : result){
+            b.append(word);
+            b.append("\n");
+        }
         if (hostPort == -1){
-            StringBuilder b = new StringBuilder();
-            for(String word : result){
-                b.append(word);
-                b.append("\n");
-            }
             System.out.println(b.toString());
         }else {
-            sendText(hostPort, result);
+            InetAddress address = InetAddress.getLocalHost(); // natürlich nimm hier ne richtige address..
+            Utils.sendTCP(address,hostPort,b.toString());
         }
 
         long end = System.currentTimeMillis();
         double secs = (end - start) / 1000.0;
         //System.out.println("dif: " + (end - start) + " millis | secs: " + secs);
+
+
 
     }
 
@@ -70,26 +77,19 @@ public class Filter {
         return Utils.<String>listToArrayStr(result);
     }
 
-    private static void sendText(int port, String[] words) {
-
-    }
-
     public static String[] getText(boolean isServer) throws IOException {
         String[] result;
         if (isServer) {
-            final int port = 5000;
+            System.out.println("listening as server..");
             ServerSocket server = new ServerSocket(port);
             Socket client = server.accept();
             Scanner scanner = new Scanner(client.getInputStream());
             result = wordsFromScanner(scanner);
         } else {
-            // Ließ von der Console
+            // Lies von der Console
             System.out.println("please specify the path to input file:");
             String path = new BufferedReader(new InputStreamReader(System.in)).readLine();
-
             File f = new File(path);
-            System.out.println(f.exists());
-
             Scanner scanner = new Scanner(new FileReader(path));
             result = wordsFromScanner(scanner);
         }
@@ -107,8 +107,7 @@ public class Filter {
                             .replace("...", "").replace("!","").replace(";","").replace(":", "").toLowerCase());
             }
         }
-        String[] r = Utils.<String>listToArrayStr(result);
-        return r;
+        return Utils.<String>listToArrayStr(result);
     }
 
 }

@@ -1,6 +1,8 @@
 package utils;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.List;
 
 import ch.ethz.ssh2.Connection;
@@ -16,31 +18,46 @@ public class Utils {
 
     private static long currentTime;
 
-    public static void stopwatchStart(){
+    public static void stopwatchStart() {
         currentTime = java.lang.System.nanoTime();
     }
 
-    public static <T> T[] listToArray(List<T> list){
-        T[] result = (T[])new Object[list.size()];
-        for(int i = 0; i < list.size(); i++){
+    public static void sendTCP(InetAddress address, int port, String message) {
+        PrintWriter out = null;
+        try {
+            Socket socket = new Socket(address, port);
+            out = new PrintWriter(socket.getOutputStream());
+            out.println(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+
+    public static <T> T[] listToArray(List<T> list) {
+        T[] result = (T[]) new Object[list.size()];
+        for (int i = 0; i < list.size(); i++) {
             result[i] = list.get(i);
         }
         return result;
     }
 
-    public static String[] listToArrayStr(List<String> list){
+    public static String[] listToArrayStr(List<String> list) {
         String[] result = new String[list.size()];
-        for(int i = 0; i < list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             result[i] = list.get(i);
         }
         return result;
     }
 
-    public static void stopwatchEnd(){
+    public static void stopwatchEnd() {
         long current = java.lang.System.nanoTime();
         long dif = current - currentTime;
         long millis = dif / 1000000;
-        System.out.println("Millis: {" + millis + "} Nanos: {" + dif + "}" );
+        System.out.println("Millis: {" + millis + "} Nanos: {" + dif + "}");
     }
 
     /**
