@@ -20,10 +20,9 @@ public class Server {
 
         boolean plus = true;
         boolean minus = false;
-        String maybeEnglish = Filter.init(plus, "dicts/english.dic", -1, false);
-        System.out.println("calculated words that are probably english words");
-        String probablyEnglish = Filter.init(minus, "dicts/german.dic", responsePort, false);
-        System.out.println("calculated words, that are most likely english words!");
+        String maybeEnglish = Filter.init(plus, "dicts/english.dic", -1, false,text);
+        System.out.println("calculated words that are probably english words (rp:" + responsePort + ")" );
+        String probablyEnglish = Filter.init(minus, "dicts/german.dic", responsePort, false,maybeEnglish);
         Utils.close();
 
     }

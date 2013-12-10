@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.*;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -25,6 +26,38 @@ import ueb01.StringBufferImpl;
 public class Utils {
 
     private static long currentTime;
+
+    /**
+     * http://svn.apache.org/viewvc/camel/trunk/components/camel-test/src/main/java/org/apache/camel/test/AvailablePortFinder.java?view=markup#l130
+     * Checks to see if a specific port is available.
+     *
+     * @param port the port to check for availability
+     */
+    public static boolean available(int port) {
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                    /* should not be thrown */
+                }
+            }
+        }
+        return false;
+    }
 
     public static void stopwatchStart() {
         currentTime = java.lang.System.nanoTime();
@@ -65,6 +98,11 @@ public class Utils {
             if (out != null) {
                 out.close();
             }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -91,11 +129,15 @@ public class Utils {
             String[] words = line.split(" ");
             for(String word : words){
                 if (word.length() > 0)
-                    result.add(word.replace(",", "").replace(".", "").replace("'", "").replace("\"", "")
-                            .replace("...", "").replace("!","").replace(";","").replace(":", "").toLowerCase());
+                    result.add(wordify(word));
             }
         }
         return Utils.<String>listToArrayStr(result);
+    }
+
+    public static String wordify(String word){
+        return word.replace(",", "").replace(".", "").replace("'", "").replace("\"", "")
+                .replace("...", "").replace("!","").replace(";","").replace(":", "").toLowerCase();
     }
 
 

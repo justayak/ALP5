@@ -32,16 +32,27 @@ public class Filter {
         if ((args.length > 2 && args[2].equals("-s")) || (args.length >= 5 && args[4].equals("-s"))) {
             isServer = true;
         }
-        String result = init(plus, language, hostPort, isServer);
+        String result = init(plus, language, hostPort, isServer, null);
     }
 
 
-    public static String init(boolean plus, String language, int hostPort, boolean isServer) throws IOException {
+
+
+    public static String init(boolean plus, String language, int hostPort, boolean isServer, String data) throws IOException {
         // Programm kann beginnen...
 
         long start = System.currentTimeMillis();
 
-        String[] text = getText(isServer);
+        String[] text = null;
+        if (data == null){
+            text = getText(isServer);
+        }else {
+            text = data.split(" ");
+            for(int i = 0; i < text.length;i++){
+                text[i] = Utils.wordify(text[i]);
+            }
+        }
+
 
         Scanner langScanner = new Scanner(new FileReader(language));
         String[] dict =  wordsFromScanner(langScanner);
