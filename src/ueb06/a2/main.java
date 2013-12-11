@@ -1,5 +1,5 @@
 package ueb06.a2;
-
+/**
 import utils.Utils;
 
 import java.io.IOException;
@@ -9,11 +9,11 @@ import java.net.URL;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-/**
+
  * User: Julian
  * Date: 04.12.13
  * Time: 19:34
- */
+
 public class main {
 
     public static String downloadContents(URL url) throws IOException {
@@ -70,3 +70,4 @@ public class main {
 
     }
 }
+ */
