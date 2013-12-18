@@ -1,3 +1,4 @@
+package ueb07;
 
 import java.rmi.*;
 import java.rmi.registry.*;
