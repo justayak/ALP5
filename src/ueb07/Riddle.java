@@ -17,6 +17,10 @@ public class Riddle {
         Map<String, String> here  = m2.dump();
         there.put("disease", "xxx");
         here.put("disease", "xxx");
+
+
+        m1.update();
+
         System.out.print("there: " + m1.lookup("disease") + "   ");
         System.out.print("here:  " + m2.lookup("disease") + "\n");
         System.exit(0);
@@ -37,6 +41,8 @@ interface RemoteMap<Key, Data> extends Remote {
     Data lookup(Key key)            throws RemoteException;
     void update(Key key, Data data) throws NoSuchKeyException, RemoteException;
     void delete(Key key)            throws NoSuchKeyException, RemoteException;
+    //void put(Map<Key,Data> e)       throws RemoteException;
+    void update()                   throws RemoteException;
     Map<Key, Data> dump()           throws RemoteException;
 }
 class KeyCollisionException extends RuntimeException { }
@@ -60,6 +66,20 @@ class RemoteMapImpl<K, D> implements RemoteMap<K, D>  {
         if(!map.containsKey(key)) throw new NoSuchKeyException();
         else map.remove(key);
     }
+
+    @Override
+    public void update() throws RemoteException {
+        Map<K,D> temp = this.map;
+        this.map = null;
+        this.map = temp;
+    }
+    /*
+    @Override
+    public void put(Map<K, D> e) throws RemoteException {
+        this.map = e;
+    }
+    */
+
     public Map<K, D> dump() {
         return map;
     }
