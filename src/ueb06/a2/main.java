@@ -17,24 +17,26 @@ import java.util.concurrent.*;
 public class main {
 
     public static String downloadContents(URL url) throws IOException {
-        try(InputStream input = url.openStream()) {
+        try (InputStream input = url.openStream()) {
             Scanner s = new Scanner(input);
             StringBuilder b = new StringBuilder();
-            while (s.hasNext()){
+            while (s.hasNext()) {
                 b.append(s.next());
             }
             return b.toString();
         }
     }
+
     static ExecutorService pool;
-    public static Future<String> startDownloading(final URL url){
-        return pool.submit(new Callable<String>(){
+
+    public static Future<String> startDownloading(final URL url) {
+        return pool.submit(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                try(InputStream input = url.openStream()) {
+                try (InputStream input = url.openStream()) {
                     Scanner s = new Scanner(input);
                     StringBuilder b = new StringBuilder();
-                    while (s.hasNext()){
+                    while (s.hasNext()) {
                         b.append(s.next());
                     }
                     return b.toString();
@@ -42,6 +44,7 @@ public class main {
             }
         });
     }
+
 
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
 
