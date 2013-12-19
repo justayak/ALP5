@@ -65,6 +65,40 @@ public class Utils {
 
     static ExecutorService pool = null;
 
+    public static class SyncTcpResponse {
+        public final Socket socket;
+        public final String message;
+        public boolean isValid(){
+            return this.socket != null;
+        }
+        public SyncTcpResponse(Socket s, String m){
+            this.socket = s; this.message = m;
+        }
+    }
+
+    public static SyncTcpResponse getTCPSync(final int port){
+        ServerSocket server = null;
+        Socket client = null;
+        StringBuilder sb = new StringBuilder();
+        try{
+            server = new ServerSocket(port);
+            client = server.accept();
+            Scanner s = new Scanner(client.getInputStream());
+            while(s.hasNext()){
+                sb.append(s.next());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (server != null) try {
+                server.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return new SyncTcpResponse(client,sb.toString());
+    }
+
     public static Future<String> getTCP(final int port) {
         if (pool == null){
             pool = Executors.newCachedThreadPool();
@@ -73,7 +107,7 @@ public class Utils {
             @Override
             public String call() throws Exception {
                 ServerSocket server = null;
-                try(ServerSocket socket = new ServerSocket(port)){
+                /*try(ServerSocket socket = new ServerSocket(port)){
                     Socket client = socket.accept();
                     Scanner s = new Scanner(client.getInputStream());
                     StringBuilder sb = new StringBuilder();
@@ -81,15 +115,24 @@ public class Utils {
                         sb.append(s.next());
                     }
                     return sb.toString();
-                }
+                }    */
+                return null;
             }
         });
     }
 
     public static void sendTCP(InetAddress address, int port, String message) {
+        try {
+            Socket s = new Socket(address,port);
+            sendTCP(s,message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendTCP(Socket socket, String message){
         PrintWriter out = null;
         try {
-            Socket socket = new Socket(address, port);
             out = new PrintWriter(socket.getOutputStream());
             out.println(message);
         } catch (IOException e) {
