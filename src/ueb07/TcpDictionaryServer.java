@@ -14,14 +14,14 @@ public class TcpDictionaryServer extends Translator{
         Translator x = new TcpDictionaryServer();
     };
 
-    public final int PORT = 5000;
+    public static final int PORT = 5000;
     private Socket current = null;
 
     public TcpDictionaryServer(){
         while(true){
             String answer = encode(this.translate(this.await()));
             Utils.sendTCP(current,answer);
-            //Utils.sendTCP(current, answer);
+            System.out.println("send translation: " + answer);
         }
 
     }
