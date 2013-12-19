@@ -21,7 +21,7 @@ public abstract class Translator {
 
     protected String[] translate(String word){
         if (dic.containsKey(word)) return dic.get(word);
-        return new String[] {word};
+        return null;
     }
 
     protected String translateText(String english){
