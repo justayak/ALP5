@@ -73,7 +73,7 @@ public class Utils {
             @Override
             public String call() throws Exception {
                 ServerSocket server = null;
-                try(ServerSocket socket = new ServerSocket(port)){
+                /*try(ServerSocket socket = new ServerSocket(port)){
                     Socket client = socket.accept();
                     Scanner s = new Scanner(client.getInputStream());
                     StringBuilder sb = new StringBuilder();
@@ -81,7 +81,8 @@ public class Utils {
                         sb.append(s.next());
                     }
                     return sb.toString();
-                }
+                }    */
+                return null;
             }
         });
     }
