@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.*;
 
 /**
- * Created by Julian on 19.12.13.
+ * Created by Julian on 19.12.13.     jo
  */
 public class UdpDictionaryClient implements Dictionary {
     @Override
