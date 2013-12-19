@@ -6,7 +6,20 @@ import java.net.*;
 /**
  * Created by Julian on 19.12.13.     jo
  */
-public class UdpDictionaryClient implements Dictionary {
+public class UdpDictionaryClient extends Translator implements Dictionary {
+
+    public static void main(String[]args){
+        Dictionary d = new UdpDictionaryClient();
+        String[] result = d.lookup("failure");
+        if (result == null){
+            System.out.println("nix..");
+        }else{
+            for(String word : result){
+                System.out.println(word);
+            }
+        }
+    }
+
     @Override
     public String[] lookup(String word) {
 
@@ -20,7 +33,7 @@ public class UdpDictionaryClient implements Dictionary {
             DatagramPacket recp = new DatagramPacket(rec, rec.length);
             client.receive(recp);
             String result = new String(recp.getData());
-            System.out.println(result);
+            return decode(result);
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (UnknownHostException e) {
@@ -29,6 +42,6 @@ public class UdpDictionaryClient implements Dictionary {
             e.printStackTrace();
         }
 
-        return new String[0];
+        return null;
     }
 }

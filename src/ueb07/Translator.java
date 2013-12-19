@@ -42,6 +42,11 @@ public abstract class Translator {
         return this.encode(this.translate(word));
     }
 
+    protected String[] decode(String encoded){
+        if (encoded.equals("<>")) return null;
+        return encoded.split("\\|");
+    }
+
     protected String[] translate(String word){
         if (dic.containsKey(word)) return dic.get(word);
         return null;

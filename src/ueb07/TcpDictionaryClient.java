@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 /**
  * Created by Julian on 19.12.13.
  */
-public class TcpDictionaryClient implements Dictionary {
+public class TcpDictionaryClient extends Translator implements Dictionary {
 
     public static void main(String[]args){
         Dictionary d = new TcpDictionaryClient();
@@ -22,12 +22,11 @@ public class TcpDictionaryClient implements Dictionary {
             InetAddress local = InetAddress.getLocalHost();
             Socket server = Utils.sendTCP(local, TcpDictionaryServer.PORT, word);
             String result = Utils.getTCPSync(server);
-            System.out.println(result);
-
+            return this.decode(result);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
 
-        return new String[0];
+        return null;
     }
 }
