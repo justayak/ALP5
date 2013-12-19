@@ -68,23 +68,39 @@ public class Utils {
     public static class SyncTcpResponse {
         public final Socket socket;
         public final String message;
-        public boolean isValid(){
+
+        public boolean isValid() {
             return this.socket != null;
         }
-        public SyncTcpResponse(Socket s, String m){
-            this.socket = s; this.message = m;
+
+        public SyncTcpResponse(Socket s, String m) {
+            this.socket = s;
+            this.message = m;
         }
     }
 
-    public static SyncTcpResponse getTCPSync(final int port){
+    public static String getTCPSync(final Socket socket) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            Scanner s = new Scanner(socket.getInputStream());
+            while (s.hasNext()) {
+                sb.append(s.next());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
+    public static SyncTcpResponse getTCPSync(final int port) {
         ServerSocket server = null;
         Socket client = null;
         StringBuilder sb = new StringBuilder();
-        try{
+        try {
             server = new ServerSocket(port);
             client = server.accept();
             Scanner s = new Scanner(client.getInputStream());
-            while(s.hasNext()){
+            while (s.hasNext()) {
                 sb.append(s.next());
             }
         } catch (IOException e) {
@@ -96,14 +112,14 @@ public class Utils {
                 e.printStackTrace();
             }
         }
-        return new SyncTcpResponse(client,sb.toString());
+        return new SyncTcpResponse(client, sb.toString());
     }
 
     public static Future<String> getTCP(final int port) {
-        if (pool == null){
+        if (pool == null) {
             pool = Executors.newCachedThreadPool();
         }
-        return pool.submit(new Callable<String>(){
+        return pool.submit(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 ServerSocket server = null;
@@ -121,20 +137,22 @@ public class Utils {
         });
     }
 
-    public static void sendTCP(InetAddress address, int port, String message) {
+    public static Socket sendTCP(InetAddress address, int port, String message) {
         try {
-            Socket s = new Socket(address,port);
-            sendTCP(s,message);
+            Socket s = new Socket(address, port);
+            return sendTCP(s, message);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
-    public static void sendTCP(Socket socket, String message){
+    public static Socket sendTCP(Socket socket, String message) {
         PrintWriter out = null;
         try {
             out = new PrintWriter(socket.getOutputStream());
             out.println(message);
+            out.flush();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -147,17 +165,18 @@ public class Utils {
                 e.printStackTrace();
             }
         }
+        return socket;
     }
 
-    public static void close(){
-        if(pool != null){
+    public static void close() {
+        if (pool != null) {
             pool.shutdown();
         }
     }
 
-    public static String wordFromScanner(Scanner scanner){
+    public static String wordFromScanner(Scanner scanner) {
         StringBuilder result = new StringBuilder();
-        while (scanner.hasNextLine()){
+        while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             result.append(line);
             result.append("\n");
@@ -165,12 +184,12 @@ public class Utils {
         return result.toString();
     }
 
-    public static String[] wordsFromScanner(Scanner scanner){
+    public static String[] wordsFromScanner(Scanner scanner) {
         List<String> result = new ArrayList<String>();
-        while (scanner.hasNextLine()){
+        while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String[] words = line.split(" ");
-            for(String word : words){
+            for (String word : words) {
                 if (word.length() > 0)
                     result.add(wordify(word));
             }
@@ -178,9 +197,9 @@ public class Utils {
         return Utils.<String>listToArrayStr(result);
     }
 
-    public static String wordify(String word){
+    public static String wordify(String word) {
         return word.replace(",", "").replace(".", "").replace("'", "").replace("\"", "")
-                .replace("...", "").replace("!","").replace(";","").replace(":", "").toLowerCase();
+                .replace("...", "").replace("!", "").replace(";", "").replace(":", "").toLowerCase();
     }
 
 
