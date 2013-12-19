@@ -26,25 +26,6 @@ public class TcpDictionaryServer extends Translator{
 
     }
 
-    /**
-     * Encodes the result:
-     * <> is token for "null"
-     * trans1|trans2|trans3 is a list seperated by the "|" symbol
-     * @param trans
-     * @return
-     */
-    private String encode(String[] trans){
-        if (trans == null){
-            return "<>";
-        }
-        StringBuilder sb = new StringBuilder();
-        for(String word : trans){
-            if (sb.length() > 0) sb.append("|");
-            sb.append(word);
-        }
-        return sb.toString();
-    }
-
     private String await() {
         Utils.SyncTcpResponse response = Utils.getTCPSync(PORT);
         if(!response.isValid()){
