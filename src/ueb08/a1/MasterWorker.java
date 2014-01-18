@@ -36,7 +36,8 @@ public class MasterWorker {
                     Problem p;
                     while((p = jobs.poll()) != null){
                         try {
-                            solutions.put(p.solve());
+                            Solution so = p.solve();
+                            solutions.put(so);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -83,7 +84,6 @@ public class MasterWorker {
         @Override
         public void run() {
             while (!isStop){
-                System.out.println("hi");
                 try {
                     Solution s = this.solutions.poll(1000, TimeUnit.MILLISECONDS);
                     if(s != null){
