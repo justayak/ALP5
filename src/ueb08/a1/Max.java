@@ -5,7 +5,7 @@ package ueb08.a1;
  */
 public class Max implements Solution<Max> {
 
-    private int max;
+    public int max;
 
     public Max(int m) {
         this.max = m;
