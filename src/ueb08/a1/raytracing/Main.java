@@ -8,10 +8,11 @@ import ueb08.a1.MasterWorker;
  * Sei n der Wert, der zeigt, wie oft der Prozess aufgesplittet werden soll:
  * (Der PC, auf dem das Programm ausgeführt wurde, hat 4 (theoretische) Kerne:
  *
- * normal: 14859 | multi: 4205  (n = 16)
- * normal: 11236 | multi: 4482  (n = 8)
- * normal: 16299 | multi: 7233  (n = 4)
- * normal: 20289 | multi: 5457  (n = 100)
+ *
+ * normal: 14859 | multi: 4205  (n = 16 ==> 8 Threads)
+ * normal: 11236 | multi: 4482  (n = 8 ==> 4 Threads)
+ * normal: 16299 | multi: 7233  (n = 4 ==> 2 Threads)
+ * normal: 20289 | multi: 5457  (n = 100 ==> 50 Threads)
  *
  * Was kann man daraus erkennen?:
  * Die maximale Geschwindigkeit zur Problemlösung ist an die Anzahl der Kerne
