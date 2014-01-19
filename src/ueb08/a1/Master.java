@@ -19,10 +19,8 @@ public class Master {
         Master m = new Master();
         Getmax getmax = new Getmax(new int[] {1,2,3,4,5,6,7,8,9,10,11,12,13},0,12);
 
-        System.out.println(getmax.toJSON());
-
         Max max = new Max(Integer.MIN_VALUE);
-        m.solve(getmax,max,1);
+        m.solve(getmax,max,4);
 
         System.out.println(max.max);
 
@@ -31,7 +29,7 @@ public class Master {
     public void solve(Problem problem, Solution solution, int n) throws IOException, InterruptedException {
         final List<Problem> chunks = problem.divide(n);
         final Solution mainSolution = solution;
-        final String workingDirectory = "h://data/studium/alp5/alp5/src";
+        final String workingDirectory = "h://data/studium/alp5/alp5/src";  // ist auf jedem rechner anders..
         //final String workingDirectory = "d://uni/alp5/src/";  // ist auf jedem rechner anders..
         final File dir = new File(workingDirectory);
         final BlockingQueue<Solution> solutions = new LinkedBlockingQueue<Solution>();
