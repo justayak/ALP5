@@ -313,6 +313,11 @@ public class Utils {
         return sb.toString();
     }
 
+    public static String readFromStream(InputStream is){
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
+
     /**
      * Method to receive the output of a Process
      *
