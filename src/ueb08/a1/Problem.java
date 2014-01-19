@@ -10,4 +10,5 @@ import java.util.List;
 public interface Problem<P,S> extends Json {
     List<P> divide(int n);
     Solution<S> solve();
+    Solution<S> createSolution(String json);
 }

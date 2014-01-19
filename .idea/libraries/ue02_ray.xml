@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="ue02_ray">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/libs/ue02_ray.jar!/" />
+      <root url="jar://D:/downloads/ue02_ray.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

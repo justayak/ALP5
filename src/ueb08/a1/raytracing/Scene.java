@@ -63,6 +63,11 @@ public class Scene implements Problem<Scene, Picture> {
     }
 
     @Override
+    public Solution<Picture> createSolution(String json) {
+        return null;
+    }
+
+    @Override
     public String toJSON() {
         return null;
     }

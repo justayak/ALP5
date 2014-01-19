@@ -17,16 +17,22 @@ public class Master {
     public static void main(String[] args) throws IOException, InterruptedException {
 
         Master m = new Master();
-        Getmax getmax = new Getmax(new int[] {1,2,3,4,5,6,7,8,9,10,11,12,13},0,13);
+        Getmax getmax = new Getmax(new int[] {1,2,3,4,5,6,7,8,9,10,11,12,13},0,12);
+
+        System.out.println(getmax.toJSON());
 
         Max max = new Max(Integer.MIN_VALUE);
-        m.solve(getmax,max,6);
+        m.solve(getmax,max,1);
+
+        System.out.println(max.max);
+
     }
 
     public void solve(Problem problem, Solution solution, int n) throws IOException, InterruptedException {
         final List<Problem> chunks = problem.divide(n);
         final Solution mainSolution = solution;
-        final String workingDirectory = "d://uni/alp5/src/";  // ist auf jedem rechner anders..
+        final String workingDirectory = "h://data/studium/alp5/alp5/src";
+        //final String workingDirectory = "d://uni/alp5/src/";  // ist auf jedem rechner anders..
         final File dir = new File(workingDirectory);
         final BlockingQueue<Solution> solutions = new LinkedBlockingQueue<Solution>();
         List<Thread> threads = new ArrayList<Thread>();
@@ -36,9 +42,14 @@ public class Master {
                 @Override
                 public void run() {
                     try {
-                        Process pr = new ProcessBuilder("cmd", "/C", "java", "ueb08.a1.Worker", prob.toJSON()).directory(dir).start();
-                        System.out.println(Utils.read(pr));
+                        Process pr = new ProcessBuilder("cmd", "/C", "java", "ueb08.a1.Worker", prob.toJSON()).redirectErrorStream(true).directory(dir).start();
+                        String yy = prob.toJSON();
+                        pr.waitFor();
+                        String x = Utils.read(pr);
+                        solutions.put(prob.createSolution(x));
                     } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -49,8 +60,8 @@ public class Master {
 
         for(Thread t : threads) t.join();
 
-        System.out.println("ende");
-
+        while (!solutions.isEmpty()){
+            mainSolution.extend(solutions.poll());
+        }
     }
-
 }

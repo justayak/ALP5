@@ -12,6 +12,8 @@ public class Getmax implements Problem<Getmax,Max>, Json {
 
     int[] array; int first; int next;
 
+    public Getmax(){}
+
     public Getmax(String json){
         this.fromJSON(json);
     }
@@ -33,10 +35,15 @@ public class Getmax implements Problem<Getmax,Max>, Json {
     @Override
     public Solution<Max> solve() {
         int max = Integer.MIN_VALUE;
-        for(int i = this.first; i <= this.next; i++){
+        for(int i = this.first; i < this.next; i++){
             if(this.array[i] > max) max = this.array[i];
         }
         return new Max(max);
+    }
+
+    @Override
+    public Solution<Max> createSolution(String json) {
+        return new Max(json);
     }
 
     @Override
@@ -54,6 +61,8 @@ public class Getmax implements Problem<Getmax,Max>, Json {
         sb.append(this.first);
         sb.append("#");
         sb.append(this.next);
+        sb.append("#");
+        sb.append("ueb08.a1.Getmax");
         return sb.toString();
     }
 
@@ -74,7 +83,6 @@ public class Getmax implements Problem<Getmax,Max>, Json {
         }
         this.first = Integer.parseInt(values[1]);
         this.next = Integer.parseInt(values[2]);
-        System.out.println(array);
     }
 
 }
