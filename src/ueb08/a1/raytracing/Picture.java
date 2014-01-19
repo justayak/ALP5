@@ -29,4 +29,14 @@ public class Picture implements Solution<Picture> {
             this.rgbdata[i+s.firstLine] = s.rgbdata[i];
         }
     }
+
+    @Override
+    public String toJSON() {
+        return null;
+    }
+
+    @Override
+    public void fromJSON(String json) {
+
+    }
 }

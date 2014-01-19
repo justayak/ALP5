@@ -53,12 +53,4 @@ public class Master {
 
     }
 
-    private static class WorkerThread implements Runnable{
-
-        @Override
-        public void run() {
-
-        }
-    }
-
 }
