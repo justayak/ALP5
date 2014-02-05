@@ -20,11 +20,7 @@ public class Main {
         FractalPicture p = new FractalPicture(xsize,ysize);
         FractalScene s = new FractalScene(1.5,1.5,xsize,ysize,0,ysize);
 
-        //m.solve(s,p,4);
-
-
-
-        p.extend((FractalPicture) s.solve());
+        m.solve(s,p,4);
 
         Painter painter = new Painter("Frac",xsize,ysize);
 

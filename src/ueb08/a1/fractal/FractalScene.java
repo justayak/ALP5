@@ -55,7 +55,6 @@ public class FractalScene implements Problem<FractalScene, FractalPicture> {
             theta = z.arg() + 2 * i * Math.PI;
             this.zeros[i] = new Complex(r * Math.cos(theta / this.n),r * Math.sin(theta / this.n));
         }
-        System.out.println("d");
     }
 
     @Override
